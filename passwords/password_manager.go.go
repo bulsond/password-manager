@@ -31,3 +31,12 @@ func NewPasswordManager(filePath string) (PasswordManager, error) {
 		IsInitialized: false,
 	}, nil
 }
+
+// GeneratePassword генерация пароля с длинной не менее 8 символов
+func (pm *PasswordManager) GeneratePassword(length int) (string, error) {
+	if length < 8 {
+		return "",
+			errors.New("длина пароля не может быть меньше 8 символов")
+	}
+	return "", nil
+}

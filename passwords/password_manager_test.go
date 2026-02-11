@@ -319,3 +319,20 @@ func TestPasswordManager_FilePersistence(t *testing.T) {
 		}
 	})
 }
+
+func TestGeneratePassword(t *testing.T) {
+	pm, _ := NewPasswordManager("test.dat")
+
+	t.Run("успешное создание пароля с длинной в 12 символов", func(t *testing.T) {
+		t.Skip("не готов")
+	})
+	t.Run("безуспешная попытка создания пароля с длинной в 4 символа", func(t *testing.T) {
+		_, err := pm.GeneratePassword(4)
+		if err == nil {
+			t.Fatal("ожидалась ошибка при коротком пароле, получено nil")
+		}
+		if err.Error() != "длина пароля не может быть меньше 8 символов" {
+			t.Errorf("ожидалось сообщение об ошибке 'длина пароля не может быть меньше 8 символов', получено '%s'", err.Error())
+		}
+	})
+}
