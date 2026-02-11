@@ -8,34 +8,34 @@ import (
 // Password тип сущности пароля
 type Password struct {
 	// название сервиса или сайта
-	Name string
+	Name string `json:"name"`
 
 	// значение пароля
-	Value string
+	Value string `json:"value"`
 
 	// категория для группировки
-	Category string
+	Category string `json:"category"`
 
 	// дата создания записи
-	CreatedAt time.Time
+	CreatedAt time.Time `json:"created_at"`
 
 	// дата последнего изменения
-	LastModified time.Time
+	LastModified time.Time `json:"last_modified"`
 }
 
 // NewPassword создать экземпляр типа Password
 func NewPassword(name, value, category string) (Password, error) {
 	if len(name) == 0 {
 		return Password{},
-			errors.New("Название сервиса или сайта не может быть пустым")
+			errors.New("название сервиса или сайта не может быть пустым")
 	}
 	if len(value) == 0 {
 		return Password{},
-			errors.New("Значение пароля не может быть пустым")
+			errors.New("значение пароля не может быть пустым")
 	}
 	if len(category) == 0 {
 		return Password{},
-			errors.New("Значение категории не может быть пустым")
+			errors.New("значение категории не может быть пустым")
 	}
 
 	now := time.Now()
