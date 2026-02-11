@@ -324,7 +324,13 @@ func TestGeneratePassword(t *testing.T) {
 	pm, _ := NewPasswordManager("test.dat")
 
 	t.Run("успешное создание пароля с длинной в 12 символов", func(t *testing.T) {
-		t.Skip("не готов")
+		pswd, err := pm.GeneratePassword(12)
+		if err != nil {
+			t.Errorf("пароль в 12 символов не создан, получена ошибка: %s", err)
+		}
+		if len(pswd) != 12 {
+			t.Errorf("ожидался пароль в 12 символов, а получен длиной в: %d", len(pswd))
+		}
 	})
 	t.Run("безуспешная попытка создания пароля с длинной в 4 символа", func(t *testing.T) {
 		_, err := pm.GeneratePassword(4)
