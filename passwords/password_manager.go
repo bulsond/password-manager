@@ -60,3 +60,21 @@ func (pm *PasswordManager) GeneratePassword(length int) (string, error) {
 	//
 	return string(result), nil
 }
+
+// SavePassword создание и внесение в список паролей у менеджера паролей
+func (pm *PasswordManager) SavePassword(name, value, category string) error {
+	if !pm.IsInitialized {
+		return errors.New("менеджер паролей не инициализирован")
+	}
+	pwd, err := NewPassword(name, value, category)
+	if err != nil {
+		return err
+	}
+	if _, ok := pm.Passwords[name]; ok {
+		return errors.New("такой пароль уже существует")
+	}
+
+	pm.Passwords[pwd.Name] = pwd
+
+	return nil
+}
