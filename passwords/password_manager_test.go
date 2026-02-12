@@ -421,7 +421,7 @@ func TestGetPassword(t *testing.T) {
 		pm.IsInitialized = true
 		err := pm.SavePassword("github.com", "MyPassword123", "dev")
 		if err != nil {
-			t.Fatal("ожидалось успешное сохранение пароля перед попыткой получения парола")
+			t.Fatal("ожидалось успешное сохранение пароля перед попыткой получения пароля")
 		}
 		pwd, err := pm.GetPassword("github.com")
 		if err != nil {
@@ -458,5 +458,35 @@ func TestGetPassword(t *testing.T) {
 		if err.Error() != "пароль не найден" {
 			t.Errorf("ожидалось сообщение об ошибке 'пароль не найден', получено '%s'", err.Error())
 		}
+	})
+}
+
+func TestListPasswords(t *testing.T) {
+	t.Run("ошибка: менеджер должен быть инициализирован", func(t *testing.T) {
+		pm, _ := NewPasswordManager("test.dat")
+		_, err := pm.ListPasswords()
+		if err == nil {
+			t.Fatal("ожидалась ошибка об инициализации, а получено nil")
+		}
+		if err.Error() != "менеджер паролей не инициализирован" {
+			t.Errorf("ожидалось сообщение об ошибке 'менеджер паролей не инициализирован', получено '%s'", err.Error())
+		}
+	})
+
+	t.Run("успешно получен пароль", func(t *testing.T) {
+		pm, _ := NewPasswordManager("test.dat")
+		pm.IsInitialized = true
+		pm.SavePassword("github.com", "GitPass123", "dev")
+		pm.SavePassword("gmail.com", "MailPass456", "email")
+		pm.SavePassword("netflix.com", "NetflixPass789", "entertainment")
+
+		pwds, err := pm.ListPasswords()
+		if err != nil {
+			t.Errorf("получение списка паролей вызвало ошибку: %s", err)
+		}
+		if len(pwds) != 3 {
+			t.Error("количество полученных паролей не соответствует количеству сохраненных")
+		}
+
 	})
 }

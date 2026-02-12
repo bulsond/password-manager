@@ -91,5 +91,17 @@ func (pm *PasswordManager) GetPassword(name string) (Password, error) {
 	} else {
 		return pwd, nil
 	}
+}
 
+// ListPasswords получение списка всех паролей
+func (pm *PasswordManager) ListPasswords() ([]Password, error) {
+	if !pm.IsInitialized {
+		return []Password{},
+			errors.New("менеджер паролей не инициализирован")
+	}
+	result := []Password{}
+	for _, p := range pm.Passwords {
+		result = append(result, p)
+	}
+	return result, nil
 }
