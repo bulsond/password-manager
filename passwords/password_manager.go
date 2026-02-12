@@ -78,3 +78,18 @@ func (pm *PasswordManager) SavePassword(name, value, category string) error {
 
 	return nil
 }
+
+// GetPassword извлечение из списка паролей у менеджера паролей
+func (pm *PasswordManager) GetPassword(name string) (Password, error) {
+	if !pm.IsInitialized {
+		return Password{},
+			errors.New("менеджер паролей не инициализирован")
+	}
+	if pwd, ok := pm.Passwords[name]; !ok {
+		return Password{},
+			errors.New("пароль не найден")
+	} else {
+		return pwd, nil
+	}
+
+}

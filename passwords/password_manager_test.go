@@ -414,3 +414,49 @@ func TestSavePassword(t *testing.T) {
 		}
 	})
 }
+
+func TestGetPassword(t *testing.T) {
+	t.Run("успешно получен пароль", func(t *testing.T) {
+		pm, _ := NewPasswordManager("test.dat")
+		pm.IsInitialized = true
+		err := pm.SavePassword("github.com", "MyPassword123", "dev")
+		if err != nil {
+			t.Fatal("ожидалось успешное сохранение пароля перед попыткой получения парола")
+		}
+		pwd, err := pm.GetPassword("github.com")
+		if err != nil {
+			t.Fatalf("ожидалось получение пароля, а получена ошибка: %s", err)
+		}
+		if pwd.Name != "github.com" {
+			t.Error("не найден пароль среди сохраненных паролей")
+		}
+		if pwd.Value != "MyPassword123" {
+			t.Error("не найден пароль среди сохраненных паролей")
+		}
+		if pwd.Category != "dev" {
+			t.Error("не найден пароль среди сохраненных паролей")
+		}
+	})
+	t.Run("ошибка: менеджер должен быть инициализирован", func(t *testing.T) {
+		pm, _ := NewPasswordManager("test.dat")
+		_, err := pm.GetPassword("github.com")
+		if err == nil {
+			t.Fatal("ожидалась ошибка об инициализации, а получено nil")
+		}
+		if err.Error() != "менеджер паролей не инициализирован" {
+			t.Errorf("ожидалось сообщение об ошибке 'менеджер паролей не инициализирован', получено '%s'", err.Error())
+		}
+	})
+
+	t.Run("ошибка: пароль не найден", func(t *testing.T) {
+		pm, _ := NewPasswordManager("test.dat")
+		pm.IsInitialized = true
+		_, err := pm.GetPassword("github.com")
+		if err == nil {
+			t.Fatal("ожидалось получение ошибки 'пароль не найден' а получено nil")
+		}
+		if err.Error() != "пароль не найден" {
+			t.Errorf("ожидалось сообщение об ошибке 'пароль не найден', получено '%s'", err.Error())
+		}
+	})
+}
