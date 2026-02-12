@@ -99,7 +99,11 @@ func (pm *PasswordManager) ListPasswords() ([]Password, error) {
 		return []Password{},
 			errors.New("менеджер паролей не инициализирован")
 	}
-	result := []Password{}
+	cap := len(pm.Passwords)
+	if cap == 0 {
+		return []Password{}, nil
+	}
+	result := make([]Password, 0, cap)
 	for _, p := range pm.Passwords {
 		result = append(result, p)
 	}

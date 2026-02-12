@@ -473,7 +473,7 @@ func TestListPasswords(t *testing.T) {
 		}
 	})
 
-	t.Run("успешно получен пароль", func(t *testing.T) {
+	t.Run("успешно получен список паролей", func(t *testing.T) {
 		pm, _ := NewPasswordManager("test.dat")
 		pm.IsInitialized = true
 		pm.SavePassword("github.com", "GitPass123", "dev")
@@ -486,6 +486,20 @@ func TestListPasswords(t *testing.T) {
 		}
 		if len(pwds) != 3 {
 			t.Error("количество полученных паролей не соответствует количеству сохраненных")
+		}
+
+	})
+
+	t.Run("успешно получен пустой список паролей", func(t *testing.T) {
+		pm, _ := NewPasswordManager("test.dat")
+		pm.IsInitialized = true
+
+		pwds, err := pm.ListPasswords()
+		if err != nil {
+			t.Errorf("получение списка паролей вызвало ошибку: %s", err)
+		}
+		if len(pwds) != 0 {
+			t.Error("ожидалость получение пустого списка паролей, а получен непустой список")
 		}
 
 	})
