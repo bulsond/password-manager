@@ -363,7 +363,7 @@ func TestSavePassword(t *testing.T) {
 		if err == nil {
 			t.Fatal("ожидалась ошибка об инициализации, а получено nil")
 		}
-		if err.Error() != "менеджер паролей не инициализирован" {
+		if err != ErrNotInitialized {
 			t.Errorf("ожидалось сообщение об ошибке 'менеджер паролей не инициализирован', получено '%s'", err.Error())
 		}
 	})
@@ -443,7 +443,7 @@ func TestGetPassword(t *testing.T) {
 		if err == nil {
 			t.Fatal("ожидалась ошибка об инициализации, а получено nil")
 		}
-		if err.Error() != "менеджер паролей не инициализирован" {
+		if err != ErrNotInitialized {
 			t.Errorf("ожидалось сообщение об ошибке 'менеджер паролей не инициализирован', получено '%s'", err.Error())
 		}
 	})
@@ -468,7 +468,7 @@ func TestListPasswords(t *testing.T) {
 		if err == nil {
 			t.Fatal("ожидалась ошибка об инициализации, а получено nil")
 		}
-		if err.Error() != "менеджер паролей не инициализирован" {
+		if err != ErrNotInitialized {
 			t.Errorf("ожидалось сообщение об ошибке 'менеджер паролей не инициализирован', получено '%s'", err.Error())
 		}
 	})
@@ -530,6 +530,24 @@ func TestSetMasterPassword(t *testing.T) {
 		}
 		if len(pm.MasterKey) != 32 {
 			t.Error("неверная длина мастер-пароля")
+		}
+	})
+}
+
+func TestSaveToFile(t *testing.T) {
+	t.Run("успешное сохранение состояния PasswordManager в файл", func(t *testing.T) {
+		// pm, _ := NewPasswordManager("test.dat")
+		t.Skip()
+	})
+
+	t.Run("ошибка: менеджер должен быть инициализирован", func(t *testing.T) {
+		pm, _ := NewPasswordManager("test.dat")
+		err := pm.SaveToFile()
+		if err == nil {
+			t.Fatal("ожидалась ошибка об инициализации, а получено nil")
+		}
+		if err != ErrNotInitialized {
+			t.Errorf("ожидалось сообщение об ошибке 'менеджер паролей не инициализирован', получено '%s'", err.Error())
 		}
 	})
 }

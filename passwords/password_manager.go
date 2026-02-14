@@ -6,6 +6,11 @@ import (
 	"math/big"
 )
 
+var (
+	ErrWeakPassword   = errors.New("значение слабого пароля")
+	ErrNotInitialized = errors.New("менеджер паролей не инициализирован")
+)
+
 // PasswordManager работа с паролями
 type PasswordManager struct {
 	// Passwords хранилище паролей, где ключ - название сервиса
@@ -64,7 +69,7 @@ func (pm *PasswordManager) GeneratePassword(length int) (string, error) {
 // SavePassword создание и внесение в список паролей
 func (pm *PasswordManager) SavePassword(name, value, category string) error {
 	if !pm.IsInitialized {
-		return errors.New("менеджер паролей не инициализирован")
+		return ErrNotInitialized
 	}
 	pwd, err := NewPassword(name, value, category)
 	if err != nil {
@@ -83,7 +88,7 @@ func (pm *PasswordManager) SavePassword(name, value, category string) error {
 func (pm *PasswordManager) GetPassword(name string) (Password, error) {
 	if !pm.IsInitialized {
 		return Password{},
-			errors.New("менеджер паролей не инициализирован")
+			ErrNotInitialized
 	}
 	if pwd, ok := pm.Passwords[name]; !ok {
 		return Password{},
@@ -97,7 +102,7 @@ func (pm *PasswordManager) GetPassword(name string) (Password, error) {
 func (pm *PasswordManager) ListPasswords() ([]Password, error) {
 	if !pm.IsInitialized {
 		return []Password{},
-			errors.New("менеджер паролей не инициализирован")
+			ErrNotInitialized
 	}
 
 	cap := len(pm.Passwords)
@@ -113,8 +118,6 @@ func (pm *PasswordManager) ListPasswords() ([]Password, error) {
 	return result, nil
 }
 
-var ErrWeakPassword = errors.New("значение слабого пароля")
-
 // SetMasterPassword установка мастер-пароля
 func (pm *PasswordManager) SetMasterPassword(masterPassword string) error {
 	masterKey := make([]byte, 32)
@@ -125,5 +128,10 @@ func (pm *PasswordManager) SetMasterPassword(masterPassword string) error {
 
 	pm.MasterKey = masterKey
 	pm.IsInitialized = true
+	return nil
+}
+
+// SaveToFile сохранение в файл состояния менеджера паролей
+func (pm *PasswordManager) SaveToFile() error {
 	return nil
 }
