@@ -14,7 +14,7 @@ func TestNewPasswordManager(t *testing.T) {
 		if err == nil {
 			t.Fatal("ожидалась ошибка при пустом пути к файлу, получено nil")
 		}
-		if err.Error() != "путь к файлу хранения не может быть пустым" {
+		if err != ErrEmptyFilePath {
 			t.Errorf("ожидалось сообщение об ошибке 'путь к файлу хранения не может быть пустым', получено '%s'", err.Error())
 		}
 	})
@@ -338,7 +338,7 @@ func TestGeneratePassword(t *testing.T) {
 		if err == nil {
 			t.Fatal("ожидалась ошибка при коротком пароле, получено nil")
 		}
-		if err.Error() != "длина пароля не может быть меньше 8 символов" {
+		if err != ErrWeakPassword {
 			t.Errorf("ожидалось сообщение об ошибке 'длина пароля не может быть меньше 8 символов', получено '%s'", err.Error())
 		}
 	})
@@ -409,7 +409,7 @@ func TestSavePassword(t *testing.T) {
 		if err2 == nil {
 			t.Fatal("ожидалась ошибка о дублировании пароля, а получено nil")
 		}
-		if err2.Error() != "такой пароль уже существует" {
+		if err2 != ErrPasswordDuplication {
 			t.Errorf("ожидалось сообщение об ошибке 'такой пароль уже существует', получено '%s'", err2.Error())
 		}
 	})
@@ -455,7 +455,7 @@ func TestGetPassword(t *testing.T) {
 		if err == nil {
 			t.Fatal("ожидалось получение ошибки 'пароль не найден' а получено nil")
 		}
-		if err.Error() != "пароль не найден" {
+		if err != ErrPasswordNotFound {
 			t.Errorf("ожидалось сообщение об ошибке 'пароль не найден', получено '%s'", err.Error())
 		}
 	})

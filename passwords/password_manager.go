@@ -7,8 +7,11 @@ import (
 )
 
 var (
-	ErrWeakPassword   = errors.New("значение слабого пароля")
-	ErrNotInitialized = errors.New("менеджер паролей не инициализирован")
+	ErrWeakPassword        = errors.New("длина пароля не может быть меньше 8 символов")
+	ErrNotInitialized      = errors.New("менеджер паролей не инициализирован")
+	ErrEmptyFilePath       = errors.New("путь к файлу хранения не может быть пустым")
+	ErrPasswordDuplication = errors.New("такой пароль уже существует")
+	ErrPasswordNotFound    = errors.New("пароль не найден")
 )
 
 // PasswordManager работа с паролями
@@ -30,7 +33,7 @@ type PasswordManager struct {
 func NewPasswordManager(filePath string) (PasswordManager, error) {
 	if len(filePath) == 0 {
 		return PasswordManager{},
-			errors.New("путь к файлу хранения не может быть пустым")
+			ErrEmptyFilePath
 	}
 
 	return PasswordManager{
@@ -45,7 +48,7 @@ func NewPasswordManager(filePath string) (PasswordManager, error) {
 func (pm *PasswordManager) GeneratePassword(length int) (string, error) {
 	if length < 8 {
 		return "",
-			errors.New("длина пароля не может быть меньше 8 символов")
+			ErrWeakPassword
 	}
 	result := make([]byte, length)
 	const charset = "abcdefghijklmnopqrstuvwxyz" +
@@ -76,7 +79,7 @@ func (pm *PasswordManager) SavePassword(name, value, category string) error {
 		return err
 	}
 	if _, ok := pm.Passwords[name]; ok {
-		return errors.New("такой пароль уже существует")
+		return ErrPasswordDuplication
 	}
 
 	pm.Passwords[pwd.Name] = pwd
@@ -92,7 +95,7 @@ func (pm *PasswordManager) GetPassword(name string) (Password, error) {
 	}
 	if pwd, ok := pm.Passwords[name]; !ok {
 		return Password{},
-			errors.New("пароль не найден")
+			ErrPasswordNotFound
 	} else {
 		return pwd, nil
 	}
