@@ -504,3 +504,32 @@ func TestListPasswords(t *testing.T) {
 
 	})
 }
+
+func TestSetMasterPassword(t *testing.T) {
+	t.Run("ошибка: мастер-пароль короче 8 символов", func(t *testing.T) {
+		pm, _ := NewPasswordManager("test.dat")
+
+		err := pm.SetMasterPassword("weak")
+		if err == nil {
+			t.Error("ожидалось получение ошибки о слабом пароле")
+		}
+		if err != ErrWeakPassword {
+			t.Errorf("ожидалось сообщение об ошибке 'значение слабого пароля', получено '%s'", err.Error())
+		}
+	})
+
+	t.Run("успешная установка мастер-пароля", func(t *testing.T) {
+		pm, _ := NewPasswordManager("test.dat")
+
+		err := pm.SetMasterPassword("StrongMasterPass123!")
+		if err != nil {
+			t.Errorf("ожидалось успешная установка мастер-пароля, а получена ошибка: %s", err)
+		}
+		if !pm.IsInitialized {
+			t.Error("установка мастер-пароля не привела к инициализации менеджера паролей")
+		}
+		if len(pm.MasterKey) != 32 {
+			t.Error("неверная длина мастер-пароля")
+		}
+	})
+}

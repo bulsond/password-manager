@@ -61,7 +61,7 @@ func (pm *PasswordManager) GeneratePassword(length int) (string, error) {
 	return string(result), nil
 }
 
-// SavePassword создание и внесение в список паролей у менеджера паролей
+// SavePassword создание и внесение в список паролей
 func (pm *PasswordManager) SavePassword(name, value, category string) error {
 	if !pm.IsInitialized {
 		return errors.New("менеджер паролей не инициализирован")
@@ -79,7 +79,7 @@ func (pm *PasswordManager) SavePassword(name, value, category string) error {
 	return nil
 }
 
-// GetPassword извлечение из списка паролей у менеджера паролей
+// GetPassword извлечение пароля по его имени из списка паролей
 func (pm *PasswordManager) GetPassword(name string) (Password, error) {
 	if !pm.IsInitialized {
 		return Password{},
@@ -99,13 +99,31 @@ func (pm *PasswordManager) ListPasswords() ([]Password, error) {
 		return []Password{},
 			errors.New("менеджер паролей не инициализирован")
 	}
+
 	cap := len(pm.Passwords)
 	if cap == 0 {
 		return []Password{}, nil
 	}
+
 	result := make([]Password, 0, cap)
 	for _, p := range pm.Passwords {
 		result = append(result, p)
 	}
+
 	return result, nil
+}
+
+var ErrWeakPassword = errors.New("значение слабого пароля")
+
+// SetMasterPassword установка мастер-пароля
+func (pm *PasswordManager) SetMasterPassword(masterPassword string) error {
+	masterKey := make([]byte, 32)
+	copied := copy(masterKey, masterPassword)
+	if copied < 8 {
+		return ErrWeakPassword
+	}
+
+	pm.MasterKey = masterKey
+	pm.IsInitialized = true
+	return nil
 }
