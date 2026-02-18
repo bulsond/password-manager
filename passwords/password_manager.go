@@ -2,9 +2,29 @@ package passwords
 
 import (
 	"crypto/rand"
+	"encoding/json"
 	"errors"
 	"math/big"
+
+	"github.com/bulsond/password-manager/encryptors"
 )
+
+// Encryptor операции по (де)шифрованию паролей
+type Encryptor interface {
+	// Зашифровать данные
+	Encrypt(key, data []byte) (encryptors.EncryptedData, error)
+	// Дешифровать данные
+	Decrypt(key []byte, data encryptors.EncryptedData) (string, error)
+}
+
+// Storaging операции по хранению данных паролей
+type Storaging interface {
+	// Save сохранение в файл зашифрованных паролей
+	Save(filePath string, data encryptors.EncryptedData) error
+
+	// Read вычитка из файла зашифрованных паролей
+	Read(filePath string) (encryptors.EncryptedData, error)
+}
 
 var (
 	ErrWeakPassword        = errors.New("длина пароля не может быть меньше 8 символов")
@@ -135,6 +155,29 @@ func (pm *PasswordManager) SetMasterPassword(masterPassword string) error {
 }
 
 // SaveToFile сохранение в файл состояния менеджера паролей
-func (pm *PasswordManager) SaveToFile() error {
+func (pm *PasswordManager) SaveToFile(encryptor Encryptor, storage Storaging) error {
+	// Проверить, что менеджер инициализирован
+	if !pm.IsInitialized {
+		return ErrNotInitialized
+	}
+
+	// Сериализовать map паролей в JSON
+	data, err := json.Marshal(pm.Passwords)
+	if err != nil {
+		return err
+	}
+
+	// Зашифруем
+	encryptedData, err := encryptor.Encrypt(pm.MasterKey, data)
+	if err != nil {
+		return err
+	}
+
+	// Сохранить IV и зашифрованные данные в файл
+	err = storage.Save(pm.FilePath, encryptedData)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

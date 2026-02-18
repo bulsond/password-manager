@@ -6,6 +6,8 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"github.com/bulsond/password-manager/encryptors"
 )
 
 func TestNewPasswordManager(t *testing.T) {
@@ -534,15 +536,45 @@ func TestSetMasterPassword(t *testing.T) {
 	})
 }
 
+// MockStoraging
+type MockStoraging struct{}
+
+func (ms *MockStoraging) Save(filePath string, data encryptors.EncryptedData) error {
+	// Создаём временный файл
+	file, err := os.CreateTemp("", "passwords_*.dat")
+	if err != nil {
+		return err
+	}
+	defer os.Remove(file.Name()) // очистка
+
+	// Сначала записываем IV
+	if _, err := file.Write(data.IV); err != nil {
+		return err
+	}
+	// Затем зашифрованные данные
+	if _, err := file.Write(data.Data); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ms *MockStoraging) Read(filePath string) (encryptors.EncryptedData, error) {
+	panic("unimplemented")
+}
+
 func TestSaveToFile(t *testing.T) {
+	enc := &encryptors.CFBencryptor{}
+	stg := &MockStoraging{}
 	t.Run("успешное сохранение состояния PasswordManager в файл", func(t *testing.T) {
 		// pm, _ := NewPasswordManager("test.dat")
+		// pm.IsInitialized = true
+
 		t.Skip()
 	})
 
 	t.Run("ошибка: менеджер должен быть инициализирован", func(t *testing.T) {
 		pm, _ := NewPasswordManager("test.dat")
-		err := pm.SaveToFile()
+		err := pm.SaveToFile(enc, stg)
 		if err == nil {
 			t.Fatal("ожидалась ошибка об инициализации, а получено nil")
 		}
